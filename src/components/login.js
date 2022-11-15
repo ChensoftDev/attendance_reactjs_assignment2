@@ -31,6 +31,7 @@ function Login(props) {
         }).then(response => {
             localStorage.setItem("token", response.data.token)
             localStorage.setItem("group", response.data.group)
+            localStorage.setItem("myid", response.data.myid)
             props.setIsLoggedIn(true)
             navigate('/')
         }).catch(error => {

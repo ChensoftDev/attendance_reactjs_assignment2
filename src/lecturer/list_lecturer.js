@@ -1,11 +1,11 @@
 import React, {useEffect, useReducer, useState} from 'react';
 import {Link, useNavigate} from "react-router-dom";
-import axios from "axios";
 import {BaseURL} from "../components/constants";
+import axios from "axios";
 
 const initialState = {
     loading: false,
-    courses: {},
+    lecturers: {},
     error: ''
 }
 
@@ -14,19 +14,19 @@ const reducer = (state, action) => {
         case 'success':
             return {
                 loading: true,
-                courses: action.payload,
+                lecturers: action.payload,
                 error: ''
             }
         case 'error':
             return {
                 loading: true,
-                courses: [],
+                lecturers: [],
                 error: "Error when fetching data!"
             }
     }
 }
 
-function ListCourse(props) {
+function ListLecturer(props) {
     const [state, dispatch] = useReducer(reducer, initialState)
     const [token, setToken] = useState('')
     const navigate = useNavigate()
@@ -34,7 +34,7 @@ function ListCourse(props) {
     useEffect(() => {
         if (localStorage.getItem("token")){
             setToken(localStorage.getItem("token"))
-            axios.get(BaseURL +'course/', {
+            axios.get(BaseURL +'lecturer/', {
                 headers: {
                     Authorization: "Token "+localStorage.getItem("token")
                 }
@@ -42,36 +42,46 @@ function ListCourse(props) {
                 dispatch({type: 'success', payload: response.data});
             }).catch(error => {
                 dispatch({type: 'error'});
-                console.log(error);
             })
         } else {
             setToken('')
             navigate('/login')
-            alert('Please login')
+            alert('Please login!')
         }
     }, [token]);
 
     return (
         <div className={'container'}>
-            <h1 className={'display-5'} style={{marginBottom: "30px"}}>Courses</h1>
+            <h1 className={'display-5'}>Lecturers</h1>
             <table className={'table table-striped table-dark'}>
                 <thead>
                     <tr>
-                        <th scope={'col'}>Name</th>
-                        <th scope={'col'}>Code</th>
-                        <th><Link to={'create'} className={'btn btn-sm btn-primary'} style={{float: "right", width: "168px"}}>Create Course</Link></th>
+
+                        <th scope={'col'}>First Name</th>
+                        <th scope={'col'}>Last Name</th>
+                        <th scope={'col'}>Email</th>
+                        <th scope={'col'}>Date of Birth</th>
+                        <th><Link to={'create'} className={'btn btn-sm btn-primary'} style={{float: "right", width: "168px"}}>Create</Link></th>
                     </tr>
                 </thead>
                 <tbody>
                 {
-                    state.loading ? state.courses.map(course => {
+                    state.loading ? state.lecturers.map(lecturer => {
                         return(
                         <tr>
-                            <td>{course.name}</td>
-                            <td>{course.code}</td>
+                            <td>{lecturer.firstname}</td>
+                            <td>{lecturer.lastname}</td>
+                            <td>{lecturer.email}</td>
+                            <td>{lecturer.DOB}</td>
                             <td>
-                                <Link to={'del'} state={{ courseID: course.id }} className={'btn btn-danger'} style={{float: "right"}}>Delete</Link>
-                                <Link to={'update'} state={{ courseID: course.id, courseName: course.name, courseCode: course.code }} className={'btn btn-success'} style={{float: "right", marginRight: "20px"}}>Update</Link>
+                                <Link to={'del'} state={{ lecturerID: lecturer.id }} className={'btn btn-danger'} style={{float: "right"}}>Delete</Link>
+                                <Link to={'update'} state={{
+                                    lecturerID: lecturer.id,
+                                    lecturerFirstName: lecturer.firstname,
+                                    lecturerLastName: lecturer.lastname,
+                                    lecturerEmail: lecturer.email,
+                                    lecturerDOB: lecturer.DOB
+                                }} className={'btn btn-success'} style={{float: "right", marginRight: "20px"}}>Update</Link>
                             </td>
                         </tr>
                         )
@@ -83,4 +93,4 @@ function ListCourse(props) {
     );
 }
 
-export default ListCourse;
+export default ListLecturer;

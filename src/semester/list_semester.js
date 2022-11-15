@@ -4,7 +4,7 @@ import axios from "axios";
 import {BaseURL} from "../components/constants";
 
 
-const semesterReducer = (state, action) => {
+const reducer = (state, action) => {
     switch (action.type) {
         case 'success':
             return {
@@ -22,7 +22,7 @@ const semesterReducer = (state, action) => {
 }
 
 function ListSemesters(props) {
-    const [semesterState, semesterDispatch] = useReducer(semesterReducer, "")
+    const [semesterState, dispatch] = useReducer(reducer, "")
     const [token, setToken] = useState('')
     const navigate = useNavigate()
     let semesterCourseIDs = []
@@ -35,10 +35,9 @@ function ListSemesters(props) {
                     Authorization: "Token "+localStorage.getItem("token")
                 }
             }).then(response => {
-                semesterDispatch({type: 'success', payload: response.data});
+                dispatch({type: 'success', payload: response.data});
             }).catch(error => {
-                semesterDispatch({type: 'error'});
-                console.log(error);
+                dispatch({type: 'error'});
             })
 
         } else {
@@ -50,12 +49,13 @@ function ListSemesters(props) {
 
     return (
         <div className={'container'}>
-            <h1 className={'display-1'} style={{marginBottom: "30px"}}>Semesters</h1>
-            <table className={'table'}>
+            <h1 className={'display-5'}>Semesters</h1>
+            <table className={'table table-striped table-dark'}>
                 <thead>
                 <tr>
                     <th scope="col">Year</th>
                     <th scope="col">Semester</th>
+                    <th><Link to={'create'} className={'btn btn-sm btn-primary'} style={{float: "right", width: "168px"}}>Create</Link></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -66,7 +66,7 @@ function ListSemesters(props) {
                                 <td key={semester.id}>{semester.year}</td>
                                 <td>{semester.semester}</td>
                                 <td>
-                                    <Link to={'delete'} state={{ semesterID: semester.id }} className={'btn btn-danger'} style={{float: "right"}}>Delete</Link>
+                                    <Link to={'del'} state={{ semesterID: semester.id }} className={'btn btn-danger'} style={{float: "right"}}>Delete</Link>
                                     <Link to={'update'} state={{
                                         semesterID: semester.id,
                                         semesterYear: semester.year,
@@ -75,7 +75,7 @@ function ListSemesters(props) {
                                 </td>
                             </tr>
                         )
-                    }): 'Loading...'
+                    }): 'Loading data please wait...'
                 }
                 </tbody>
             </table>
