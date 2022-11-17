@@ -26,6 +26,11 @@ import CreateClass from "./class/create_class";
 import ListAttendance from "./attendance/list_attendance";
 import UpdateClass from "./class/update_class";
 import AssignLecturer from "./lecturer/assign";
+import Enrollments from "./enrollment/enroll_list";
+import Enroll from "./enrollment/enroll";
+import Attendance from "./attendance/list_attendance";
+import MyAttendance from "./student/my_attendance";
+
 
 
 
@@ -79,10 +84,16 @@ function App() {
                       </li>
                       </div>
                   )
-                } else if (localStorage.getItem("token") && permission !== 'admin') {
+                } else if (localStorage.getItem("token") && permission === 'lecturer') {
                   return (
                       <li className={'nav-item'}>
                         <NavLink to={'classes'} className={'nav-link'} aria-current={'page'}>My Class</NavLink>
+                      </li>
+                  )
+                } else if (localStorage.getItem("token") && permission === 'student') {
+                  return (
+                      <li className={'nav-item'}>
+                        <NavLink to={'students/my_attendance'} className={'nav-link'} aria-current={'page'}>My Attendance</NavLink>
                       </li>
                   )
                 }
@@ -123,12 +134,16 @@ function App() {
         <Route path={'students/del'} element={<DeleteStudent />}></Route>
         <Route path={'students/create'} element={<CreateStudent />}></Route>
         <Route path={'students/update'} element={<UpdateStudent />}></Route>
+        <Route path={'students/my_attendance'} element={<MyAttendance />}></Route>
+        <Route path={'students/enrollments'} element={<Enrollments />}></Route>
+         <Route path={'students/enrollments/enroll'} element={<Enroll />}></Route>
         <Route path={'classes'} element={<ListClass />}></Route>
         <Route path={'classes/del'} element={<DeleteClass />}></Route>
         <Route path={'classes/create'} element={<CreateClass />}></Route>
         <Route path={'classes/Update'} element={<UpdateClass />}></Route>
         <Route path={'attendance/list_attendance'} element={<ListAttendance />}></Route>
         <Route path={'classes/assign'} element={<AssignLecturer />}></Route>
+        <Route path={'classes/attendance'} element={<Attendance />}></Route>
       </Routes>
     </div>
   );

@@ -4,6 +4,12 @@ import {Link, useNavigate} from "react-router-dom";
 import {BaseURL} from "../components/constants";
 import LecturerName from "../lecturer/lecturer_name";
 
+const initialStudentState = {
+    loading: false,
+    students: {},
+    error: ''
+}
+
 const initialClassState = {
     loading: false,
     courses: {},
@@ -73,6 +79,24 @@ const courseReducer = (state, action) => {
             }
     }
 }
+
+const studentReducer = (state, action) => {
+    switch (action.type) {
+        case 'success':
+            return {
+                loading: true,
+                students: action.payload,
+                error: ''
+            }
+        case 'error':
+            return {
+                loading: true,
+                students: [],
+                error: "Error when fetching data!"
+            }
+    }
+}
+
 const lecturerReducer = (state, action) => {
     switch (action.type) {
         case 'success':
@@ -95,6 +119,8 @@ function ListClass(props) {
     const [semesterState, semesterDispatch] = useReducer(semesterReducer, initialSemesterState)
     const [courseState, courseDispatch] = useReducer(courseReducer, initialCourseState)
     const [lecturerState, lecturerDispatch] = useReducer(lecturerReducer, initialLecturerState)
+    const [studentState, studentDispatch] = useReducer(studentReducer, initialStudentState)
+
     const [token, setToken] = useState('')
     const navigate = useNavigate()
     const permission = localStorage.getItem("group")
@@ -113,6 +139,18 @@ function ListClass(props) {
                 classDispatch({type: 'error'});
                 console.log(error);
             })
+
+            axios.get(BaseURL +'student/', {
+                headers: {
+                    Authorization: "Token "+localStorage.getItem("token")
+                }
+            }).then(response => {
+                studentDispatch({type: 'success', payload: response.data});
+            }).catch(error => {
+                studentDispatch({type: 'error'});
+                console.log(error);
+            })
+
             axios.get(BaseURL +'semester/', {
                 headers: {
                     Authorization: "Token "+localStorage.getItem("token")
@@ -163,7 +201,7 @@ function ListClass(props) {
                         <th scope={'col'}>Semester</th>
                         <th scope={'col'}>Course</th>
                         <th scope={'col'}>Lecturer</th>
-                        <th><Link to={'create'} state={{ semesterList: semesterState.semesters, coursesList: courseState.courses }} className={'btn btn-primary'} style={{float: "right", width: "168px"}}>Create</Link></th>
+                        <th><Link to={'create'} state={{ semesterList: semesterState.semesters, coursesList: courseState.courses }} className={'btn btn-sm btn-primary'} style={{float: "right", width: "168px"}}>Create</Link></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -267,12 +305,8 @@ function ListClass(props) {
 
 
                                 <td>
-                                    <Link to={'update'} state={{ classID: class1.id,
-                                        classNumber: class1.number,
-                                        classSemester: class1.semester,
-                                        classCourse: class1.course,
-                                        semesterList: semesterState.semesters,
-                                        coursesList: courseState.courses,
+                                    <Link to={'attendance'} state={{ classID: class1.id, classNumber: class1.number,
+                                        studentList:studentState.students,
                                     }} className={'btn btn-success'}>Enter Attendance</Link>
                                 </td>
                             </tr>

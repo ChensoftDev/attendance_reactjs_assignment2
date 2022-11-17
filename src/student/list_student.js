@@ -64,7 +64,7 @@ const [state, dispatch] = useReducer(reducer, initialState)
                         <th scope={'col'}>Date of Birth</th>
                         <th>
                             <Link to={'create'} className={'btn btn-sm btn-primary'} style={{float: "right"}}>Create</Link>
-                            <Link to={'enrolments'} className={'btn btn-sm btn-primary'} style={{float: "right", marginRight: "20px"}}>Enrollment</Link>
+                            <Link to={'enrollments'} className={'btn btn-sm btn-primary'} style={{float: "right", marginRight: "20px"}}>Enrollment</Link>
                         </th>
                     </tr>
                 </thead>
