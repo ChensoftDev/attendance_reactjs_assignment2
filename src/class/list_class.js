@@ -129,9 +129,11 @@ function ListClass(props) {
     useEffect(() => {
         if (localStorage.getItem("token")){
             setToken(localStorage.getItem("token"))
+
             axios.get(BaseURL +'class/', {
-                headers: {
-                    Authorization: "Token "+localStorage.getItem("token")
+                headers:{
+
+                    Authorization: "Token "+localStorage.getItem("token"),
                 }
             }).then(response => {
                 classDispatch({type: 'success', payload: response.data});
@@ -141,7 +143,9 @@ function ListClass(props) {
             })
 
             axios.get(BaseURL +'student/', {
+
                 headers: {
+
                     Authorization: "Token "+localStorage.getItem("token")
                 }
             }).then(response => {
@@ -153,6 +157,7 @@ function ListClass(props) {
 
             axios.get(BaseURL +'semester/', {
                 headers: {
+
                     Authorization: "Token "+localStorage.getItem("token")
                 }
             }).then(response => {
@@ -163,6 +168,7 @@ function ListClass(props) {
             })
             axios.get(BaseURL +'course/', {
                 headers: {
+
                     Authorization: "Token "+localStorage.getItem("token")
                 }
             }).then(response => {
@@ -173,6 +179,7 @@ function ListClass(props) {
             })
             axios.get(BaseURL +'lecturer/', {
                 headers: {
+
                     Authorization: "Token "+localStorage.getItem("token")
                 }
             }).then(response => {

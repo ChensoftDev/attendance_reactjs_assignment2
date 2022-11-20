@@ -2,8 +2,6 @@ import React, {useEffect, useReducer, useState} from 'react';
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
 import {BaseURL} from "../components/constants";
-import { If, Then, ElseIf, Else } from 'react-if-elseif-else-render';
-import {flushSync} from 'react-dom';
 
 
 const enrolmentReducer = (state, action) => {
@@ -23,28 +21,8 @@ const enrolmentReducer = (state, action) => {
     }
 }
 
-const attendanceReducer = (state, action) => {
-    switch (action.type) {
-        case 'success':
-            return {
-                loading: true,
-                attendance: action.payload,
-                error: ''
-            }
-        case 'error':
-            return {
-                loading: true,
-                attendance: [],
-                error: "Error when fetching data!"
-            }
-    }
-}
 
-const initialAttendanceState = {
-    loading: false,
-    attendance: {},
-    error: ''
-}
+
 
 const initialEnrolmentState = {
     loading: false,
@@ -58,36 +36,25 @@ const initialEnrolmentState = {
 
 function ListAttendance(props) {
     const [ enrolmentState, enrolmentDispatch] = useReducer(enrolmentReducer, initialEnrolmentState)
-    const [ attendanceData, setAttendanceData] = useState([]);
     const location = useLocation()
     const { studentList , classID , classNumber } = location.state
     const [token, setToken] = useState('')
     const navigate = useNavigate()
     const today = new Date();
 
-
     const datenow = today.setDate(today.getDate());
     const defaultValue = new Date(datenow).toISOString().split('T')[0] // yyyy-mm-dd
     const [selectedDate,setselectDate] = useState(defaultValue)
-    const [selectedDateID,setselectDateID] = useState('')
+    const [collageID,setcollageID] = useState()
+
 
                 const selecteddateHandler = e => {
                     setselectDate(e.target.value)
                 }
 
 
-                useEffect(() => {
-                    //setselectDate(defaultValue)
-                    //alert(selectedDate)
-                },[])
-
-
-
-
-
-
-
             useEffect(  () => {
+                console.log('selectedDate::', selectedDate)
                 const data = {
                     'date': selectedDate,
                 }
@@ -97,49 +64,85 @@ function ListAttendance(props) {
                     }
                 }).then(response => {
 
-                    setselectDateID(response.data.id);
-                    getattendance();
-
+                    setcollageID(response.data.id);
+                    //getattendance();
+                    getEnrollmentAttendance(response.data.id)
                 }).catch(error => {
                     console.log(error);
                 })
             },[selectedDate]);
 
-
-            const getattendance = async () => {
-                axios.get(BaseURL +'attendance/',{
-                headers: {
+            const getEnrollmentAttendance = async (selectId) => {
+                const attendancePath = BaseURL +'attendance_details/?collagedayid=' + selectId
+                const enrollmentPath = BaseURL +'enrollment/'
+                const headers = {
                     Authorization: "Token "+localStorage.getItem("token")
                 }
-                }).then(response => {
-                    setAttendanceData(response.data)
-                    //attendanceDispatch({type: 'success', payload: response.data});
+
+                const attendancePromise = axios.get(attendancePath, { headers })
+                const enrollmentPromise = axios.get(enrollmentPath, { headers })
+
+                Promise.all([enrollmentPromise, attendancePromise]).then(async responses => {
+                    const [ enrollmentResult, attendanceResult ] = responses
+                    const attendanceItems = attendanceResult.data ? attendanceResult.data : []
+                    const enrollmentPayload = []
+                    if (enrollmentResult.data && enrollmentResult.data.length > 0) {
+                        for await (const enrollmentRes of enrollmentResult.data) {
+                            const attendanceExist = attendanceItems.find((r) => r.studentID === enrollmentRes.studentID)
+                            const student = studentList.find((r) => r.id === enrollmentRes.studentID)
+                            console.log('attendanceExist::',attendanceExist )
+                            const isEnableButton = attendanceExist ? true : false
+                            const buttonStatus = attendanceExist ? attendanceExist.status : false
+                            const studentFullName = student.firstname + ' ' + student.lastname
+                            enrollmentPayload.push({...enrollmentRes, isEnableButton, buttonStatus, studentFullName})
+                        }
+                    }
+                    console.log('enrollmentPayload::', enrollmentPayload)
+                     enrolmentDispatch({type: 'success', payload: enrollmentPayload});
                 }).catch(error => {
-                    //attendanceDispatch({type: 'error'});
-                    console.log(error);
+                    console.log(error)
+                     enrolmentDispatch({type: 'error'});
                 })
             }
 
-
-            useEffect(() => {
-                if (localStorage.getItem("token")){
-                    axios.get(BaseURL +'enrollment/', {
+            const UpdateAttendance = async (status,studentID) => {
+                console.log('UpdateAttendanceCalled')
+                try {
+                    const data = {
+                        'classID': classID,
+                        'collegedayID': collageID,
+                        'studentID': studentID,
+                        'status': status,
+                    }
+                    axios.post(BaseURL + 'attendance/', data, {
                         headers: {
-                            Authorization: "Token "+localStorage.getItem("token")
+                            Authorization: "Token " + localStorage.getItem("token")
                         }
                     }).then(response => {
-                        enrolmentDispatch({type: 'success', payload: response.data});
+                        getEnrollmentAttendance(collageID)
+
                     }).catch(error => {
-                        enrolmentDispatch({type: 'error'});
                         console.log(error);
                     })
 
-            } else {
-
-                navigate('/login')
-                alert('Please login!')
+                } catch (err) {}
             }
-            }, [token]);
+
+            const onPresent = async (studentID) => {
+                console.log('onClickPresent', studentID)
+                try {
+                    UpdateAttendance(true,studentID)
+                } catch (err) {}
+            }
+
+            const onAbsent = async (studentID) => {
+                    console.log('onClickAbsent', studentID)
+                try {
+                    UpdateAttendance(false,studentID)
+                } catch (err) {
+                    console.log(err);
+                }
+            }
 
     return (
                <div className={'container'}>
@@ -157,43 +160,35 @@ function ListAttendance(props) {
                 </thead>
                 <tbody>
 
+
                 {
 
                         enrolmentState.loading ? enrolmentState.enrolments.filter(enroll => enroll.classID === classID).map(enroll1 => {
 
                         return(
 
-                            <tr>
+                            <tr key={enroll1.studentID}>
                                 <td>{enroll1.studentID}</td>
-                                {
-                                    studentList.map(student => {
-
-                                        return (student.id === enroll1.studentID ?
-                                            <td>{student.firstname} {student.lastname}</td> : '')
-                                    })
-
-
-                                }
+                                <td>{enroll1.studentFullName}</td>
                                 <td>
-                                <button id={enroll1.studentID} className={'btn btn-sm btn-success'} >Present</button>
-                                <button to={'del'} id={enroll1.studentID} className={'btn btn-sm btn-outline-danger'} >Absent</button>
+
+                                    {enroll1.isEnableButton
+                                        ? <>
+                                            <button type={'button'} onClick={() => onPresent(enroll1.studentID)} id={enroll1.studentID} className={enroll1.buttonStatus ? 'btn btn-sm btn-success' : 'btn btn-sm btn-outline-success'} >Present</button>
+
+                                            <button type={'button'} onClick={() => onAbsent(enroll1.studentID)} to={'del'} id={enroll1.studentID} className={enroll1.buttonStatus ? 'btn btn-sm btn-outline-danger' : 'btn btn-sm btn-danger' } >Absent</button>
+                                        </>
+                                        : <>
+                                            <button type={'button'} onClick={() => onPresent(enroll1.studentID)}  id={enroll1.studentID} className={'btn btn-sm btn-outline-success'} >Present</button>
+                                            <button type={'button'} onClick={() => onAbsent(enroll1.studentID)} to={'del'} id={enroll1.studentID} className={'btn btn-sm btn-outline-danger'} >Absent</button>
+                                        </>}
+
                                 </td>
-
-             
-
-
-
-                                {/*{enrolmentState.loading ? attendanceState.attendance.map((item, index) => (*/}
-                                {/*    <td>TEST</td>*/}
-                                {/*)) : '' }*/}
 
                             </tr>
                         )
                     }): 'Loading data please wait...'
                 }
-
-
-
 
                 </tbody>
             </table>
