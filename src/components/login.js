@@ -35,6 +35,7 @@ function Login(props) {
             props.setIsLoggedIn(true)
             navigate('/')
         }).catch(error => {
+            alert("Cannot login!")
             console.log(error)
         })
     }
