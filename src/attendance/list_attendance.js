@@ -135,6 +135,8 @@ function ListAttendance(props) {
                 } catch (err) {}
             }
 
+
+
             const onAbsent = async (studentID) => {
                     console.log('onClickAbsent', studentID)
                 try {
@@ -142,6 +144,27 @@ function ListAttendance(props) {
                 } catch (err) {
                     console.log(err);
                 }
+            }
+
+            const SendEmail = async (studentID) => {
+                console.log('SendEmail Present')
+                try {
+                    const data = {
+                        'studentID': studentID
+                    }
+                    axios.post(BaseURL + 'sendemail/', data, {
+                        headers: {
+                            Authorization: "Token " + localStorage.getItem("token")
+                        }
+                    }).then(response => {
+                        alert("Email has been sent!")
+
+                    }).catch(error => {
+                        alert("Email cannot be sent!")
+                        console.log(error);
+                    })
+
+                } catch (err) {}
             }
 
     return (
@@ -156,6 +179,7 @@ function ListAttendance(props) {
                         <th scope={'col'}>Student ID</th>
                         <th scope={'col'}>Student Name</th>
                         <th scope={'col'}>Attendance</th>
+                        <th scope={'col'}>Email</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -183,6 +207,10 @@ function ListAttendance(props) {
                                             <button type={'button'} onClick={() => onAbsent(enroll1.studentID)} to={'del'} id={enroll1.studentID} className={'btn btn-sm btn-outline-danger'} >Absent</button>
                                         </>}
 
+                                </td>
+
+                                 <td>
+                                <button type={'button'} onClick={() => SendEmail(enroll1.studentID)} to={'del'} id={enroll1.studentID} className={'btn btn-sm btn-outline-primary'} >Email</button>
                                 </td>
 
                             </tr>

@@ -65,6 +65,8 @@ const [state, dispatch] = useReducer(reducer, initialState)
                         <th>
                             <Link to={'create'} className={'btn btn-sm btn-primary'} style={{float: "right"}}>Create</Link>
                             <Link to={'enrollments'} className={'btn btn-sm btn-primary'} style={{float: "right", marginRight: "20px"}}>Enrollment</Link>
+                            <Link to={'upload'} className={'btn btn-sm btn-primary'} style={{float: "right", marginRight: "20px"}}>Upload from file</Link>
+
                         </th>
                     </tr>
                 </thead>

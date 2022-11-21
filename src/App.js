@@ -30,6 +30,9 @@ import Enrollments from "./enrollment/enroll_list";
 import Enroll from "./enrollment/enroll";
 import Attendance from "./attendance/list_attendance";
 import MyAttendance from "./student/my_attendance";
+import UploadFile from "./student/upload_file";
+
+
 
 
 
@@ -70,6 +73,7 @@ function App() {
                         <li className={'nav-item'}>
                         <NavLink to={'students'} className={'nav-link'} aria-current={'page'}>Students</NavLink>
                       </li>
+
                         <li className={'nav-item'}>
                         <NavLink to={'lecturers'} className={'nav-link'} aria-current={'page'}>Lecturers</NavLink>
                       </li>
@@ -144,6 +148,7 @@ function App() {
         <Route path={'attendance/list_attendance'} element={<ListAttendance />}></Route>
         <Route path={'classes/assign'} element={<AssignLecturer />}></Route>
         <Route path={'classes/attendance'} element={<Attendance />}></Route>
+        <Route path={'students/upload'} element={<UploadFile />}></Route>
       </Routes>
     </div>
   );
