@@ -6,7 +6,7 @@
 <li>ISCG7420 Web Application Development Assignment 2</li>
 </ul><h2>Technologies Used</h2>
 <hr><ul>
-<li>React</li>
+<li>ReactJS</li>
 </ul><h2>Features</h2>
 <hr><ul>
 <li>Administrator can login into in the attendance system.</li>
